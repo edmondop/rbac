@@ -1,0 +1,100 @@
+// Protobuf definition for RBAC system
+
+
+syntax = "proto3";
+
+package edmondop.api.rbac.v1;
+
+option go_package = "github.com/edmondop/rbac;rbacservice";
+
+import "google/protobuf/empty.proto";
+
+message PolicyId {
+  string value = 1; // UUID as a string
+}
+
+enum Effect {
+  ALLOW = 0;
+  DENY = 1;
+}
+
+message PolicyStatement {
+  string statement_id = 1;
+  repeated string resources = 2;
+  repeated string actions = 3;
+  Effect effect = 4;
+}
+
+
+message AddPolicyRequest {
+  repeated PolicyStatement statements = 1;
+  repeated string roles = 2;
+}
+
+message AssignPolicyRequest {
+  PolicyId policy_id = 1;
+  repeated string roles = 2;
+}
+
+message UnassignPolicyRequest {
+  PolicyId policy_id = 1;
+  repeated string roles = 2;
+}
+
+message UpdatePolicyRequest {
+  PolicyId policy_id = 1;
+  repeated string roles = 2;
+}
+
+message AuthorizeActionRequest {
+  string user = 1;
+  string resource = 2;
+  string action = 3;
+}
+
+message PolicyIdResponse {
+  PolicyId policy_id = 1;
+  optional string error = 2; // error message if any
+}
+
+message ErrorResponse {
+  optional string error = 1; // error message if any
+}
+
+message AuthorizeActionResponse {
+  bool authorized = 1;
+  optional string error = 2; // error message if any
+}
+
+message AddUserToRoleRequest {
+  string user = 1;
+  string role = 2;
+}
+
+message AddUserToRoleResponse {
+  bool success = 1;
+}
+
+message RemoveUserFromRoleRequest {
+  string user = 1;
+  string role = 2;
+}
+
+message GetRolesForUserRequest {
+  string user = 1;
+}
+
+message GetRolesForUserResponse {
+  repeated string roles = 1;
+}
+
+service RbacService {
+  rpc AddPolicy (AddPolicyRequest) returns (PolicyIdResponse);
+  rpc AssignPolicy (AssignPolicyRequest) returns (google.protobuf.Empty);
+  rpc UnassignPolicy (UnassignPolicyRequest) returns (google.protobuf.Empty);
+  rpc UpdatePolicy (UpdatePolicyRequest) returns (google.protobuf.Empty);
+  rpc AuthorizeAction (AuthorizeActionRequest) returns (AuthorizeActionResponse);
+  rpc AddUserToRole(AddUserToRoleRequest) returns (AddUserToRoleResponse);
+  rpc RemoveUserFromRole(RemoveUserFromRoleRequest) returns (google.protobuf.Empty);
+  rpc GetRolesForUser(GetRolesForUserRequest) returns (GetRolesForUserResponse);
+}
